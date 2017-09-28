@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/wwgberlin/timelord/vc"
@@ -15,6 +16,10 @@ type Record struct {
 type DB struct {
 	mu     sync.RWMutex
 	values []Record
+}
+
+func (db *DB) String() string {
+	return fmt.Sprintf("DB: %v", db.values)
 }
 
 func (db *DB) Get() []Record {
