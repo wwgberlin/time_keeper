@@ -1,41 +1,43 @@
 package vclock
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 type (
-	Vclock interface {
+	VClock interface {
 		Data() string
 		SetData(s string)
 		Incr(id string)
-		Vector() map[string]int
+		ToS() string
 	}
-	vclock struct {
+	vClock struct {
 		data string
 		m    map[string]int
 	}
 
-	ByVectorClock []Vclock
+	ByVectorClock []VClock
 )
 
-func NewVclock(data string) Vclock {
-	return &vclock{m: map[string]int{}, data: data}
+func NewVclock(data string) VClock {
+	return &vClock{m: map[string]int{}, data: data}
 }
 
-func (v *vclock) Data() string {
+func (v *vClock) Data() string {
 	return v.data
 }
+func (v *vClock) ToS() string {
+	return fmt.Sprintf("%v", v.m)
+}
 
-func (v *vclock) SetData(data string) {
+func (v *vClock) SetData(data string) {
 	v.data = data
 }
 
-func (v *vclock) Incr(id string) {
+func (v *vClock) Incr(id string) {
 	i := v.m[id]
 	v.m[id] = i + 1
-}
-
-func (v *vclock) Vector() map[string]int {
-	return v.m
 }
 
 func (a ByVectorClock) Len() int {
@@ -45,9 +47,11 @@ func (a ByVectorClock) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
 }
 func (a ByVectorClock) Less(i, j int) bool {
-	if len(a[i].Vector()) == len(a[j].Vector()) {
-		for k1, v1 := range a[i].Vector() {
-			if v2, ok := a[j].Vector()[k1]; !ok {
+	v1 := a[i].(*vClock)
+	v2 := a[j].(*vClock)
+	if len(v1.m) == len(v2.m) {
+		for k1, v1 := range v1.m {
+			if v2, ok := v2.m[k1]; !ok {
 				//different maps
 			} else if v1 != v2 {
 				return v1 < v2
@@ -55,17 +59,18 @@ func (a ByVectorClock) Less(i, j int) bool {
 		}
 		return false //equal
 	}
-	return len(a[i].Vector()) < len(a[j].Vector())
+	return len(v1.m) < len(v2.m)
 }
 
-func GetMostRecent(vclocks []Vclock) Vclock {
+func GetMostRecent(vclocks []VClock) VClock {
 	sort.Sort(ByVectorClock(vclocks))
 	winner := vclocks[len(vclocks)-1].Data()
-	res := NewVclock(winner)
-	for _, vclock := range vclocks {
-		for k, v := range vclock.Vector() {
-			if res.Vector()[k] < v {
-				res.Vector()[k] = v
+	res := NewVclock(winner).(*vClock)
+	for _, vc := range vclocks {
+		v := vc.(*vClock)
+		for k, v := range v.m {
+			if res.m[k] < v {
+				res.m[k] = v
 			}
 		}
 	}

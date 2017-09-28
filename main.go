@@ -10,7 +10,7 @@ type (
 	person struct {
 		name   string
 		client client
-		vclock vclock.Vclock
+		vclock vclock.VClock
 	}
 
 	client struct {
@@ -19,7 +19,7 @@ type (
 	}
 
 	msgBoard struct {
-		msgs []vclock.Vclock
+		msgs []vclock.VClock
 	}
 )
 
@@ -37,7 +37,7 @@ func (p *person) receive() {
 	if len(vclocks) != 0 {
 		vclock := vclock.GetMostRecent(vclocks)
 		p.vclock = vclock
-		fmt.Println(p.name, "received", vclock.Data(), vclock.Vector())
+		fmt.Println(p.name, "received", vclock.Data(), vclock.ToS())
 	} else {
 		fmt.Println("no new messages")
 	}
@@ -51,13 +51,13 @@ func newPerson(name string) person {
 	}
 }
 
-func (c *client) receive() []vclock.Vclock {
+func (c *client) receive() []vclock.VClock {
 	msgs := c.msgBoard.msgs[c.lastRead:]
 	c.lastRead = len(c.msgBoard.msgs)
 	return msgs
 }
 
-func (c client) dispatch(vclock vclock.Vclock) {
+func (c client) dispatch(vclock vclock.VClock) {
 	c.msgBoard.msgs = append(c.msgBoard.msgs, vclock)
 }
 
