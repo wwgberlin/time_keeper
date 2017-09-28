@@ -1,9 +1,27 @@
 package vc
 
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
 // Timestamp is a represenation of timestamap based on vector clock
 type Timestamp struct {
-	vc   []int
-	line int
+	vc       []int
+	line     int
+	resolver Resolver
+}
+
+type Resolver interface {
+	Resolve(t Timestamp, o Timestamp) int
+}
+
+type MajorityResolver struct {
+}
+
+type ManualResolver struct {
 }
 
 // New creates a new timestamp in a group timelines. For examle each server or
@@ -11,10 +29,11 @@ type Timestamp struct {
 // size is a group size - e.g. number of servers
 // line - index of a particular timeline in the group which will be considered as a local
 // time for this vector clock (like time in particular server)
-func New(size, line int) Timestamp {
+func New(size, line int, resolver Resolver) Timestamp {
 	return Timestamp{
-		vc:   make([]int, size),
-		line: line,
+		vc:       make([]int, size),
+		line:     line,
+		resolver: resolver,
 	}
 }
 
@@ -58,7 +77,11 @@ func (t Timestamp) HappensBefore(r Timestamp) int {
 			continue
 		}
 		if ac != s {
-			return NotComparable
+			if t.resolver == nil {
+				return NotComparable
+			} else {
+				return t.resolver.Resolve(t, r)
+			}
 		}
 	}
 	return ac
@@ -76,4 +99,25 @@ func (t Timestamp) Merge(r Timestamp) {
 		}
 	}
 	t.vc[t.line]++
+}
+
+func (r ManualResolver) Resolve(t Timestamp, o Timestamp) int {
+	fmt.Println("Resolution needed:")
+	fmt.Println(fmt.Sprintf("Select 1 for: %v", t.vc))
+	fmt.Println(fmt.Sprintf("Select 2 for: %v", o.vc))
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		panic(err.Error())
+	}
+	in := strings.TrimSuffix(strings.TrimSuffix(input, "\n"), "\r")
+	switch in {
+	case "1":
+		return HappensAfter
+	case "2":
+		return HappensBefore
+	}
+	fmt.Println("Your input didn't make sense")
+	os.Exit(2)
+	return -19771207
 }

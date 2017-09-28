@@ -28,7 +28,7 @@ type person struct {
 func newPerson(id, groupSize int) *person {
 	return &person{
 		id: id,
-		ts: vc.New(groupSize, id),
+		ts: vc.New(groupSize, id, nil),
 	}
 }
 
