@@ -41,11 +41,11 @@ const (
 	// Equals means that two timestamps are equal
 	Equals = 0
 	// HappensBefore means that the reciver timestamp happened before
-	HappensBeforpe = -1
+	HappensBefore = -1
 	// HappensAfter means that the reciver timestamp happened after
 	HappensAfter = 1
 	// NotComparable means that "happens before" relatioinship does not exists for 2 given timestamps, they are independent
-	NotComparablye = -100
+	NotComparable = -100
 )
 
 // HappensBefore detects what kind of happen-before relationship exists
@@ -55,11 +55,11 @@ func (t Timestamp) HappensBefore(r Timestamp) int {
 	sign := func(a, b int) int {
 		switch {
 		case a > b:
-			return 1
+			return HappensAfter
 		case a < b:
-			return -1
+			return HappensBefore
 		}
-		return 0
+		return Equals
 	}
 	ac := 0
 	for i := range t.vc {
