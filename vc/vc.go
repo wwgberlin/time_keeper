@@ -23,20 +23,6 @@ func (t Timestamp) Tick() {
 	t.vc[t.line]++
 }
 
-// Merge happens when actors in 2 different timelines communicate, for example when a message with timestamp is recieved.
-// What is reuired:
-// - update each element in the vector to be max(local, received)
-// - increment the logical clock value representing the current node in the vector
-// r remote timeline, recieved as part of a message
-func (t Timestamp) Merge(r Timestamp) {
-	for i := range t.vc {
-		if t.vc[i] < r.vc[i] {
-			t.vc[i] = r.vc[i]
-		}
-	}
-	t.vc[t.line]++
-}
-
 const (
 	// Equals means that two timestamps are equal
 	Equals = 0
@@ -76,4 +62,18 @@ func (t Timestamp) HappensBefore(r Timestamp) int {
 		}
 	}
 	return ac
+}
+
+// Merge happens when actors in 2 different timelines communicate, for example when a message with timestamp is recieved.
+// What is reuired:
+// - update each element in the vector to be max(local, received)
+// - increment the logical clock value representing the current node in the vector
+// r remote timeline, recieved as part of a message
+func (t Timestamp) Merge(r Timestamp) {
+	for i := range t.vc {
+		if t.vc[i] < r.vc[i] {
+			t.vc[i] = r.vc[i]
+		}
+	}
+	t.vc[t.line]++
 }
