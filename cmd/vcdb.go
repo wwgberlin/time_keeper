@@ -59,6 +59,7 @@ func main() {
 
 	dave.suggest("Tuesday")
 	dump()
+	fmt.Printf("dave: %v", dave)
 
 	cathy.suggest("Thursday")
 	dump()
