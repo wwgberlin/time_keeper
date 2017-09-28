@@ -39,7 +39,6 @@ func New(size, line int, resolver Resolver) Timestamp {
 
 // Tick is clock move in local timeline. Whenever a process does work, increment the logical clock value of the node in the vector
 func (t Timestamp) Tick() {
-	t.vc[t.line]++
 }
 
 const (
@@ -57,34 +56,7 @@ const (
 // between two timestamps. If it exists it could be Equals, HappensBefore or
 // HappensAfter. If they are from independent timelines NotComparable must be returned
 func (t Timestamp) HappensBefore(r Timestamp) int {
-	sign := func(a, b int) int {
-		switch {
-		case a > b:
-			return HappensAfter
-		case a < b:
-			return HappensBefore
-		}
-		return Equals
-	}
-	ac := 0
-	for i := range t.vc {
-		s := sign(t.vc[i], r.vc[i])
-		if s == 0 {
-			continue
-		}
-		if ac == 0 {
-			ac = s
-			continue
-		}
-		if ac != s {
-			if t.resolver == nil {
-				return NotComparable
-			} else {
-				return t.resolver.Resolve(t, r)
-			}
-		}
-	}
-	return ac
+	return 0
 }
 
 // Merge happens when actors in 2 different timelines communicate, for example when a message with timestamp is recieved.
@@ -93,12 +65,6 @@ func (t Timestamp) HappensBefore(r Timestamp) int {
 // - increment the logical clock value representing the current node in the vector
 // r remote timeline, recieved as part of a message
 func (t Timestamp) Merge(r Timestamp) {
-	for i := range t.vc {
-		if t.vc[i] < r.vc[i] {
-			t.vc[i] = r.vc[i]
-		}
-	}
-	t.vc[t.line]++
 }
 
 func (r ManualResolver) Resolve(t Timestamp, o Timestamp) int {
