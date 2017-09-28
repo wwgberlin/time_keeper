@@ -17,10 +17,10 @@ const (
 func TestScenario(t *testing.T) {
 	db := &DB{}
 
-	ta := vc.New(4, alice)
-	tb := vc.New(4, bob)
-	tc := vc.New(4, cathy)
-	td := vc.New(4, dave)
+	ta := vc.New(4, alice, nil)
+	tb := vc.New(4, bob, nil)
+	tc := vc.New(4, cathy, nil)
+	td := vc.New(4, dave, nil)
 
 	ta.Tick()
 	if err := db.Set("Wednesday", ta); err != nil {

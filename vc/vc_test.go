@@ -6,14 +6,14 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	ts := New(5, 1)
+	ts := New(5, 1, nil)
 	if len(ts.vc) != 5 {
 		t.Errorf("unexpected ts size: %d", len(ts.vc))
 	}
 }
 
 func TestTick(t *testing.T) {
-	ts := New(5, 1)
+	ts := New(5, 1, nil)
 	ts.Tick()
 	if ts.vc[1] != 1 {
 		t.Errorf("expected to see a tick: %v", ts)
@@ -21,9 +21,9 @@ func TestTick(t *testing.T) {
 }
 
 func TestMerge(t *testing.T) {
-	ts := New(5, 1)
+	ts := New(5, 1, nil)
 	ts.Tick()
-	r := New(5, 0)
+	r := New(5, 0, nil)
 	r.Tick()
 	ts.Merge(r)
 	if ts.vc[0] != 1 || ts.vc[1] != 2 {
@@ -37,9 +37,9 @@ func TestScenario(t *testing.T) {
 		b
 		c
 	)
-	ta := New(3, a)
-	tb := New(3, b)
-	tc := New(3, c)
+	ta := New(3, a, nil)
+	tb := New(3, b, nil)
+	tc := New(3, c, nil)
 	tc.Tick()
 	tb.Merge(tc)
 	tb.Tick()
